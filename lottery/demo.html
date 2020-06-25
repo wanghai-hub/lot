@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+         
+        html,body{
+            width: 100%;
+            height: 100%;
+            max-width: 750px;
+            margin: auto;
+        }
+         
+        .outBox{
+            width: 100%;
+            height: 60%;
+            background: gray;
+            position: relative;
+            display: flex;
+            flex-flow: row wrap;
+                     
+        }
+         
+        .prize{
+            width: 44%;
+            height: 40%;
+            margin: 5% 3%;
+            text-align: center;
+            font-size: xx-large;
+            color: #fff;
+            padding-top: 15%;
+            box-sizing: border-box;
+            border: 6px double #AB945E;
+        }
+         
+        .prize.active{
+            background: goldenrod;
+        }
+         
+        .btn{
+            position: absolute;
+            left:30%;
+            bottom:-20%;
+            width: 40%;
+            text-align: center;
+            height: 12%;
+            font-size: xx-large;
+        }
+         
+         
+    </style>
+ 
+</head>
+<body>
+    <div class="outBox" id="lotteryBoxs">
+         
+        <div class="prize prize-0 one">一等奖</div>
+        <div class="prize prize-1 two">二等奖</div>
+        <div class="prize prize-3 four">谢谢参与</div>
+        <div class="prize prize-2 three">三等奖</div>
+         
+         
+        <button class="btn">开启好运</button>
+
+        <script src="./jquery.min.js"></script>
+        <script>
+         
+            // 用的是函数递归
+        
+            $(document).ready(function() {
+                // 转盘的初定义
+                var lottery = {
+                 index: 0, //当前转动到哪个位置，起点位置
+                 count: 4, //总共有多少个位置
+                 timer: 0, //setTimeout的ID，用clearTimeout清除
+                 speed: 10, //初始转动速度
+                 times: 0, //转移次数 动几下不是转几圈
+                 cycle: 30, //转移基本次数：即至少需要转动多少次再进入抽奖环节
+                 prize: 0, //中奖位置
+                 roll: function(){
+                     $('.prize').eq(this.index).addClass('active').siblings().removeClass('active')
+                     this.index++;
+                     if(this.index>4){
+                         this.index=0
+                     }
+                 },
+             
+                 stop: function(index) {
+                     this.prize = index;
+                     return false;
+                 }
+             };
+                // 中奖转动事件
+                function render() {
+                    lottery.times += 1;
+                    lottery.roll();
+                    var prize_site = $("#lotteryBoxs").attr("prize_site");
+                    if (lottery.times > lottery.cycle + 10 && lottery.index == prize_site) {
+                         var prize_id = $("#lotteryBoxs").attr("prize_id");
+                         var prize_name = $("#lotteryBoxs").attr("prize_name");
+                         console.log(prize_site+"结果")
+                         //中奖情况的判断--模态框
+                         if(prize_site == 1 || prize_site == 2 || prize_site == 3){
+                             //已中奖
+                             setTimeout(function(){
+                                 console.log("恭喜你获得" + prize_name)
+                             },500)
+                         }else{
+                             //未中奖
+                             setTimeout(function(){
+                                 console.log("中奖结果：" + prize_name)
+                             },500)
+                              
+                         }
+                         // 结束定时器，初始化功能
+                         clearTimeout(lottery.timer);
+                         lottery.prize = -1;
+                         lottery.times = 0;
+                         click = false;
+                     
+                     } else {
+                         // 中奖条件不足
+                         if (lottery.times < lottery.cycle) {
+                             lottery.speed -= 20;
+                         } else if (lottery.times == lottery.cycle) {
+                             var index = Math.random() * (lottery.count) | 0;
+                            //  lottery.prize = index;
+                             lottery.prize = lottery.index;
+                         } else {
+                            // lottery.times > lottery.cycle
+                             if (lottery.times > lottery.cycle + 10 && ((lottery.prize == 0 && lottery.index == lottery.count - 1) || lottery.prize == lottery.index + 1)) {
+                                 lottery.speed += 90;
+                             } else {
+                                 lottery.speed += 30;
+                             }
+                         }
+                         // 限制速度不能太快
+                         if (lottery.speed < 30) {
+                             lottery.speed = 30;
+                         }
+
+                        lottery.timer = setTimeout(render, lottery.speed); //递归函数
+                     }
+                    return false;
+                }
+             
+                var click = false;
+             
+                // 后台数据的调用
+                $(function() {       
+                    $(".btn").click(function() {
+                        if (click) {
+                            return false;
+                        } else {
+                            lottery.speed = 100;                           
+                            //此处数据应该从接口获取
+                            var prizeArr=["谢谢参与","一等奖","二等奖","三等奖"]
+                            var prizeId = Math.floor(Math.random()*(3-0+1)+0); //随机产生中奖序号
+                            console.log("位置"+prizeId);
+                            $("#lotteryBoxs").attr("prize_site", prizeId );
+                            $("#lotteryBoxs").attr("prize_name", prizeArr[prizeId]);
+                            render();
+                            click = true;
+                            return false;
+                     
+                        }
+                    });
+                })
+             
+            });
+             
+             
+             
+        </script>
+       
+
+</body>
+</html>

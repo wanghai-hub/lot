@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .out{
+            width: 300px;
+            height: 300px;
+        }
+        ul{
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        li{
+            list-style: none;
+            box-sizing: border-box;
+            border: 1px solid black;
+            width: 100px;
+            height:100px;
+            background-color: rgba(127,217,217,.3);
+        }
+        .on{
+            background-color: rgb(127,217,217);
+        }
+    </style>
+</head>
+<body>
+    <div class="out">
+        <ul>
+            <li>一等奖</li>
+            <li>二等奖</li>
+            <li>三等奖</li>
+            <li>四等奖</li>
+            <li>特等奖</li>
+            <li>五等奖</li>
+            <li>六等奖</li>
+            <li>七等奖</li>
+            <li>八等奖</li>
+        </ul>
+        <button class="btn">点击</button>
+    </div>
+    <script src="./jquery.min.js"></script>
+    <script src="./index.js"></script>
+    
+
+    <script>
+     var ran= 0
+     var it = {
+         index:0,
+         price: 0,
+         move:0,
+         step:30,
+         speed:50,
+         timer: null,
+         roll:function(){
+             $('li').eq(this.index).addClass('on').siblings().removeClass('on')
+             this.index++;
+             if(this.index>8){
+                 this.index = 0
+             }
+         }
+     }
+
+     function render() {
+         it.move++;
+         it.roll()
+
+        // 判断是否中奖
+        if(it.move>it.step && it.index == ran){
+            // 满足中奖条件并且当前位置就是提前预定好的中奖位置
+            if(it.index ==ran){
+                console.log(it.index);
+                
+                alert('恭喜中奖位置是'+(it.index-1))
+            }else{
+                alert('悲催的人生')
+            }
+            clearTimeout(it.timer)
+            it.price=0;
+            it.move=0
+        }else{
+            // 不满足中奖的条件,变速度转吧
+            if(it.move<it.step){
+                it.speed -= 50;
+            }else if(it.move = it.step){
+                var index = Math.random() * 9| 0;
+                it.prize = index;
+            }else{
+                //转的够多了，但是没转到指定的中奖位置上，需要继续转
+                if(it.move>it.step&& it.index!= ran){
+                    it.speed +=50
+                }
+            }
+            if(it.speed <50){
+                it.speed = 50
+            }
+            // 不满足条件就需要继续递归执行
+            it.timer = setTimeout(render,it.speed)
+        }
+        return false
+     }
+     
+    //  var click = false
+     $('.btn').on('click',function() {
+      
+         it.speed = 300;
+         ran = Math.floor(Math.random()*(9-1+1)+1);
+         console.log(ran);
+         render()
+         click = true;
+        
+         return false 
+     })
+      
+
+     //源码
+
+     <div class="outBox" id="lotteryBoxs">
+         
+         <div class="prize prize-0 one">一等奖</div>
+         <div class="prize prize-1 two">二等奖</div>
+         <div class="prize prize-3 four">谢谢参与</div>
+         <div class="prize prize-2 three">三等奖</div>
+          
+         <button class="btn">开启好运</button>
+     </div>
+     // 中奖转动事件
+     function render() {
+          lottery.times += 1;
+          lottery.roll();
+
+          var prize_site = $("#lotteryBoxs").attr("prize_site");
+          // 判断中奖与否条件
+          if (lottery.times > lottery.cycle + 10 && lottery.index == prize_site) {
+              var prize_id = $("#lotteryBoxs").attr("prize_id");
+              var prize_name = $("#lotteryBoxs").attr("prize_name");
+              console.log(prize_site+"结果")
+              //中奖情况的判断--模态框
+              if(prize_site == 1 || prize_site == 2 || prize_site == 3){
+                  //已中奖
+                  setTimeout(function(){
+                      console.log("恭喜你获得" + prize_name)
+                  },500)
+              }else{
+                  //未中奖
+                  setTimeout(function(){
+                      console.log("中奖结果：" + prize_name)
+                  },500)
+                   
+              }
+    
+              clearTimeout(lottery.timer);
+              lottery.prize = -1;
+              lottery.times = 0;
+              click = false;
+    
+          } else {
+              if (lottery.times < lottery.cycle) {
+                  lottery.speed -= 20;
+              } else if (lottery.times == lottery.cycle) {
+                  var index = Math.random() * (lottery.count) | 0;
+                  lottery.prize = index;
+              } else {
+                  if (lottery.times > lottery.cycle + 10 && ((lottery.prize == 0 && lottery.index == lottery.count - 1) || lottery.prize == lottery.index + 1)) {
+                      lottery.speed += 90;
+                  } else {
+                      lottery.speed += 30;
+                  }
+              }
+              if (lottery.speed < 30) {
+                  lottery.speed = 30;
+              }
+              lottery.timer = setTimeout(render, lottery.speed);
+          }
+          return false;
+      }
+    
+      var click = false;
+    
+      // 后台数据的调用
+      $(function() {
+          lottery.init('lotteryBoxs');
+          $(".btn").click(function() {
+              if (click) {
+                  return false;
+              } else {
+                  lottery.speed = 100;                
+                  //此处数据应该从接口获取
+                  var prizeArr=["谢谢参与","一等奖","二等奖","三等奖"]
+                  var prizeId = Math.floor(Math.random()*(3-0+1)+0);
+                  console.log("位置"+prizeId);
+                  $("#lotteryBoxs").attr("prize_site", prizeId );
+                  $("#lotteryBoxs").attr("prize_name", prizeArr[prizeId]);
+                  roll();
+                  click = true;
+                  return false;
+    
+              }
+          });
+      })
+    
+    ;
+
+
+
+    </script>
+</body>
+</html>
